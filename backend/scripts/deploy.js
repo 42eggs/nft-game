@@ -6,26 +6,44 @@
 // global scope, and execute the script.
 const hre = require("hardhat");
 
-async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-  const unlockTime = currentTimestampInSeconds + ONE_YEAR_IN_SECS;
+const main = async () => {
+    const gameContractFactory = await hre.ethers.getContractFactory("NFTGame");
+    const gameContract = await gameContractFactory.deploy(
+        charValues.characterNames,
+        charValues.characterImageURIs,
+        charValues.characterHps,
+        charValues.characterAttackDmgs,
+        charValues.bossName,
+        charValues.bossImageURI,
+        charValues.bossHp,
+        charValues.bossAttackDamage
+    );
+    await gameContract.deployed();
+    console.log("Contract deployed to:", gameContract.address);
 
-  const lockedAmount = hre.ethers.utils.parseEther("1");
+    let txn;
+    txn = await gameContract.mintCharacterNFT(0);
+    await txn.wait();
+    console.log("Minted NFT #1");
 
-  const Lock = await hre.ethers.getContractFactory("Lock");
-  const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
+    txn = await gameContract.mintCharacterNFT(1);
+    await txn.wait();
+    console.log("Minted NFT #2");
 
-  await lock.deployed();
+    txn = await gameContract.mintCharacterNFT(2);
+    await txn.wait();
+    console.log("Minted NFT #3");
 
-  console.log(
-    `Lock with 1 ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`
-  );
-}
+    txn = await gameContract.mintCharacterNFT(1);
+    await txn.wait();
+    console.log("Minted NFT #4");
+
+    console.log("Done deploying and minting!");
+};
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
 main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
+    console.error(error);
+    process.exitCode = 1;
 });

@@ -1,0 +1,15 @@
+{
+    "characterNames": ["Leo", "Aang", "Pikachu"],
+    "characterImageURIs": 
+    [
+    "https://i.imgur.com/pKd5Sdk.png", 
+    "https://i.imgur.com/xVu4vFL.png", 
+    "https://i.imgur.com/WMB6g9u.png"
+    ],
+    "characterHps": [100, 200, 300],
+    "characterAttackDmgs": [100, 50, 25],
+    "bossName": "Elon Musk",
+    "bossImageURI": "https://i.imgur.com/4ZQZ1Zm.png",
+    "bossHp": 5000,
+    "bossAttackDamage": 100
+}
