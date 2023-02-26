@@ -11,7 +11,21 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+// import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
+// import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
+
 contract NFTGame is ERC721, Ownable {
+    event CharacterNFTMinted(
+        address indexed sender,
+        uint256 indexed tokenId,
+        uint256 indexed characterIndex
+    );
+    event AttackComplete(
+        address indexed sender,
+        uint indexed newBossHp,
+        uint indexed newPlayerHp
+    );
+
     //character values in a struct
     struct CharacterAttributes {
         uint characterIndex;
@@ -21,6 +35,8 @@ contract NFTGame is ERC721, Ownable {
         uint maxHp;
         uint attackDamage;
     }
+
+    uint randNonce = 0;
 
     // For counting the number of tokens
     using Counters for Counters.Counter;
@@ -100,6 +116,16 @@ contract NFTGame is ERC721, Ownable {
 
     // Get NFT based on the characterID
     function mintCharacterNFT(uint _characterIndex) external {
+        require(
+            _characterIndex < defaultCharacters.length,
+            "Character ID invalid."
+        );
+
+        require(
+            nftHolders[msg.sender] == 0,
+            "You already have an NFT. You can only have 1 NFT at a time."
+        );
+
         // Get current tokenId (starts at 1).
         uint256 newItemId = _tokenIds.current();
 
@@ -128,8 +154,11 @@ contract NFTGame is ERC721, Ownable {
 
         // Increment the tokenId for the next mint
         _tokenIds.increment();
+
+        emit CharacterNFTMinted(msg.sender, newItemId, _characterIndex);
     }
 
+    // Gets the tokenURI for the NFT
     function tokenURI(
         uint256 _tokenId
     ) public view override returns (string memory) {
@@ -168,32 +197,159 @@ contract NFTGame is ERC721, Ownable {
         return output;
     }
 
-    function revive(uint256 _tokenId) external payable {
-        require(
-            nftHolders[msg.sender] == _tokenId,
-            "Only the owner of this NFT can revive it"
+    function attackBoss() public {
+        uint256 nftTokenIdOfPlayer = nftHolders[msg.sender];
+        CharacterAttributes storage player = nftHolderAttributes[
+            nftTokenIdOfPlayer
+        ];
+        console.log(
+            "\nPlayer w/ character %s about to attack. Has %s HP and %s AD",
+            player.name,
+            player.hp,
+            player.attackDamage
         );
+        console.log(
+            "Boss %s has %s HP and %s AD\n",
+            bigBoss.name,
+            bigBoss.hp,
+            bigBoss.attackDamage
+        );
+
+        // Make sure the player has more than 0 HP.
+        require(player.hp > 0, "Error: character must have HP to attack boss.");
+
+        // Make sure the boss has more than 0 HP.
+        require(
+            bigBoss.hp > 0,
+            "Error: boss must have HP to attack character."
+        );
+
+        //player attempts to attack bigboss
+        console.log("\n%s swings at %s...", player.name, bigBoss.name);
+
+        if (randomInt(10) > 5) {
+            if (bigBoss.hp < player.attackDamage) {
+                bigBoss.hp = 0;
+                //Event boss is dead
+                console.log("The boss is dead!");
+            } else {
+                bigBoss.hp = bigBoss.hp - player.attackDamage;
+                //Event boss is attacked, new hp
+                console.log(
+                    "%s attacked boss. New boss hp: %s",
+                    player.name,
+                    bigBoss.hp
+                );
+            }
+        } else {
+            //Event player missed
+            console.log("%s missed!", player.name);
+        }
+
+        //bigboss attempting to attack player
+        console.log("\n%s swings at %s...", bigBoss.name, player.name);
+
+        if (randomInt(10) > 5) {
+            if (player.hp < bigBoss.attackDamage) {
+                player.hp = 0;
+                //Event Player is dead
+                console.log("Player %s is dead!", player.name);
+            } else {
+                player.hp = player.hp - bigBoss.attackDamage;
+                //Event Boss attacked player
+                console.log(
+                    "Boss attacked %s. New %s hp: %s",
+                    player.name,
+                    player.name,
+                    player.hp
+                );
+            }
+        } else {
+            //Event boss missed
+            console.log("Boss missed!");
+        }
+
+        emit AttackComplete(msg.sender, bigBoss.hp, player.hp);
+    }
+
+    // will get me a 0 <= randNum <_modulus
+    function randomInt(uint _modulus) internal returns (uint) {
+        randNonce++; // increase nonce
+        return
+            uint(
+                keccak256(
+                    abi.encodePacked(block.timestamp, msg.sender, randNonce)
+                )
+            ) % _modulus;
+    }
+
+    // Revive a character with 0.1 MATIC
+    function revive() external payable {
+        uint256 nftTokenIdOfPlayer = nftHolders[msg.sender];
+        require(nftTokenIdOfPlayer != 0, "You don't own a Fighter NFT");
 
         require(msg.value >= 0.1 ether, "You must pay 0.1 MATIC");
 
         CharacterAttributes storage charAttributes = nftHolderAttributes[
-            _tokenId
+            nftTokenIdOfPlayer
         ];
 
         charAttributes.hp = charAttributes.maxHp;
 
+        //Event player restored
+
         console.log(
             "Revived character %s with tokenId %s to full health %s",
             charAttributes.name,
-            _tokenId,
+            nftTokenIdOfPlayer,
             charAttributes.hp
         );
     }
 
+    function reviveBoss() public onlyOwner {
+        bigBoss.hp = bigBoss.maxHp;
+        // Event boss restored
+        console.log(
+            "Revived boss %s to full health %s",
+            bigBoss.name,
+            bigBoss.hp
+        );
+    }
+
+    // Getting all revenues from reviving a character
     function withdraw() public payable onlyOwner {
-        (bool sent, bytes memory data) = payable(msg.sender).call{
-            value: msg.value
-        }("");
+        (bool sent, ) = payable(msg.sender).call{value: msg.value}("");
         require(sent, "Failed to send Ether");
+    }
+
+    //If the user has a character NFT, return their character. Else, return an empty character.
+    function checkIfUserHasNFT()
+        public
+        view
+        returns (CharacterAttributes memory)
+    {
+        //this will be 0 if they don't have a character NFT
+        uint256 userNftTokenId = nftHolders[msg.sender];
+
+        if (userNftTokenId > 0) {
+            return nftHolderAttributes[userNftTokenId];
+        } else {
+            CharacterAttributes memory emptyStruct;
+            return emptyStruct;
+        }
+    }
+
+    //Get all the default characters
+    function getAllDefaultCharacters()
+        public
+        view
+        returns (CharacterAttributes[] memory)
+    {
+        return defaultCharacters;
+    }
+
+    //Gets the boss
+    function getBigBoss() public view returns (BigBoss memory) {
+        return bigBoss;
     }
 }

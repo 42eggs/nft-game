@@ -15,13 +15,28 @@ const main = async () => {
     await gameContract.deployed();
     console.log("Contract deployed to:", gameContract.address);
 
-    // Minting some NFTs
-    let txn = await gameContract.mintCharacterNFT(2);
+    let txn = await gameContract.mintCharacterNFT(0);
+    await txn.wait();
+    console.log("Minted NFT #1");
+
+    gameContract.mintCharacterNFT(1).then(
+        () => txn.wait().then(() => console.log("Minted NFT #2")),
+        (error) => console.log(getReasonFromError(error.toString()))
+    );
+
+    txn = await gameContract.attackBoss();
     await txn.wait();
 
-    // Get the value of the NFT's URI.
-    let returnedTokenUri = await gameContract.tokenURI(1);
-    console.log("Token URI:", returnedTokenUri);
+    txn = await gameContract.attackBoss();
+    await txn.wait();
+
+    console.log("Done!");
+};
+
+const getReasonFromError = (errorMsg) => {
+    const startIndex = errorMsg.indexOf("'");
+    const endIndex = errorMsg.indexOf("'", startIndex + 1);
+    return errorMsg.slice(startIndex + 1, endIndex);
 };
 
 main().catch((error) => {
