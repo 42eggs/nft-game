@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
+import SelectCharacter from "./Components/SelectCharacter";
 
 import "./App.css";
 
 const App = () => {
     const [currentAccount, setCurrentAccount] = useState(null);
+    const [characterNFT, setCharacterNFT] = useState(null);
+
+    useEffect(() => {
+        checkIfWalletIsConnected();
+    }, []);
+
     const isEthereumPresent = () => {
         const { ethereum } = window;
         if (!ethereum) {
@@ -35,10 +42,6 @@ const App = () => {
         }
     };
 
-    useEffect(() => {
-        checkIfWalletIsConnected();
-    }, []);
-
     const connectWalletAction = async () => {
         try {
             if (!isEthereumPresent()) return;
@@ -49,6 +52,21 @@ const App = () => {
             setCurrentAccount(accounts[0]);
         } catch (error) {
             console.log(error);
+        }
+    };
+
+    const renderContent = () => {
+        if (!currentAccount) {
+            return (
+                <div className="connect-wallet-container">
+                    <img src="https://64.media.tumblr.com/tumblr_mbia5vdmRd1r1mkubo1_500.gifv" alt="Monty Python Gif" />
+                    <button className="cta-button connect-wallet-button" onClick={connectWalletAction}>
+                        Connect Wallet To Get Started
+                    </button>
+                </div>
+            );
+        } else if (currentAccount && !characterNFT) {
+            return <SelectCharacter setCharacterNFT={setCharacterNFT} />;
         }
     };
 
@@ -63,9 +81,7 @@ const App = () => {
                             src="https://64.media.tumblr.com/tumblr_mbia5vdmRd1r1mkubo1_500.gifv"
                             alt="Monty Python Gif"
                         />
-                        <button className="cta-button connect-wallet-button" onClick={connectWalletAction}>
-                            Connect Wallet To Get Started
-                        </button>
+                        {renderContent()}
                     </div>
                 </div>
             </div>

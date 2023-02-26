@@ -5,6 +5,9 @@
 // will compile your contracts, add the Hardhat Runtime Environment's members to the
 // global scope, and execute the script.
 const hre = require("hardhat");
+const fs = require("fs");
+const path = require("path");
+const charValues = require("../charValues.json");
 
 const main = async () => {
     const gameContractFactory = await hre.ethers.getContractFactory("NFTGame");
@@ -20,6 +23,17 @@ const main = async () => {
     );
     await gameContract.deployed();
     console.log("Contract deployed to:", gameContract.address);
+    writeAddressToFile(gameContract.address);
+};
+
+const writeAddressToFile = (address) => {
+    const filePath = path.join(__dirname, "..", "addresses", "NFTGame.json");
+    const fileContents = fs.readFileSync(filePath, "utf8");
+
+    const data = JSON.parse(fileContents);
+    data.address = address;
+
+    fs.writeFileSync(filePath, JSON.stringify(data));
 };
 
 // We recommend this pattern to be able to use async/await everywhere
