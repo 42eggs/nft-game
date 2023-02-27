@@ -1,6 +1,8 @@
 # NFT Turn-based Fighting Game
 
 
+### Check out a live deployment <ins>[here](https://nft-game-alpha-beige.vercel.app/)</ins>.
+
 ## Getting Started
 
 ```
