@@ -23,15 +23,15 @@ const main = async () => {
     );
     await gameContract.deployed();
     console.log("Contract deployed to:", gameContract.address);
-    writeAddressToFile(gameContract.address);
+    writeAddressToFile(gameContract.address, hre.network.config.chainId);
 };
 
-const writeAddressToFile = (address) => {
+const writeAddressToFile = (address, chainId) => {
     const filePath = path.join(__dirname, "..", "addresses", "NFTGame.json");
     const fileContents = fs.readFileSync(filePath, "utf8");
 
     const data = JSON.parse(fileContents);
-    data.address = address;
+    data[chainId] = address;
 
     fs.writeFileSync(filePath, JSON.stringify(data));
 };
