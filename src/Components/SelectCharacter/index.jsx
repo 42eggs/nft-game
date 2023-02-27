@@ -5,6 +5,7 @@ import { transformCharacterData, chainId } from "../../utils";
 import NFTGameAddresses from "../../../backend/addresses/NFTGame.json";
 import NFTGame from "../../../backend/artifacts/contracts/NFTGame.sol/NFTGame.json";
 import Swal from "sweetalert2";
+import LoadingIndicator from "../../Components/LoadingIndicator";
 
 const SelectCharacter = ({ setCharacterNFT }) => {
     const Toast = Swal.mixin({
@@ -18,10 +19,12 @@ const SelectCharacter = ({ setCharacterNFT }) => {
 
     const [characters, setCharacters] = useState([]);
     const [gameContract, setGameContract] = useState(null);
+    const [mintingCharacter, setMintingCharacter] = useState(false);
 
     const mintCharacterNFTAction = async (characterId) => {
         try {
             if (gameContract) {
+                setMintingCharacter(true);
                 console.log("Minting character in progress...");
                 const mintTxn = await gameContract.mintCharacterNFT(characterId);
                 await mintTxn.wait();
@@ -31,9 +34,11 @@ const SelectCharacter = ({ setCharacterNFT }) => {
                     title: "<strong style='color:white'>Mint Successful</strong>",
                     background: "green",
                 });
+                setMintingCharacter(false);
             }
         } catch (error) {
             console.warn("MintCharacterAction Error:", error);
+            setMintingCharacter(false);
         }
     };
 
@@ -94,7 +99,7 @@ const SelectCharacter = ({ setCharacterNFT }) => {
 
     const renderCharacters = () =>
         characters.map((character, index) => (
-            <div className="character-item" key={character.name}>
+            <div className="character-item" key={character.index}>
                 <div className="name-container">
                     <p>{character.name}</p>
                 </div>
@@ -111,6 +116,18 @@ const SelectCharacter = ({ setCharacterNFT }) => {
         <div className="select-character-container">
             <h2>Mint Your Fighter. Choose wisely.</h2>
             {characters.length > 0 && <div className="character-grid">{renderCharacters()}</div>}
+            {mintingCharacter && (
+                <div className="loading">
+                    <div className="indicator">
+                        <LoadingIndicator />
+                        <p>Minting In Progress...</p>
+                    </div>
+                    <img
+                        src="https://media4.giphy.com/media/3BgL0ZCot6FGdoB5aI/giphy.gif?cid=ecf05e470wlo59881emgfazsltbjp57ctk0fs5csmut63sak&rid=giphy.gif&ct=g"
+                        alt="Minting loading indicator"
+                    />
+                </div>
+            )}
         </div>
     );
 };

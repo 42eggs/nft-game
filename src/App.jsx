@@ -1,19 +1,47 @@
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import SelectCharacter from "./Components/SelectCharacter";
+import Arena from "./Components/Arena";
 import "./App.css";
 import NFTGameAddresses from "../backend/addresses/NFTGame.json";
 import NFTGame from "../backend/artifacts/contracts/NFTGame.sol/NFTGame.json";
 import { ethers } from "ethers";
 import { transformCharacterData, chainId } from "./utils";
+import LoadingIndicator from "./Components/LoadingIndicator";
 
 const App = () => {
     const [currentAccount, setCurrentAccount] = useState(null);
     const [characterNFT, setCharacterNFT] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
+        setIsLoading(true);
         if (checkIfWalletIsConnected()) checkNetwork();
     }, []);
+
+    useEffect(() => {
+        const fetchNFTMetadata = async () => {
+            console.log("Checking for Character NFT on address:", currentAccount);
+
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const signer = provider.getSigner();
+            const gameContract = new ethers.Contract(NFTGameAddresses[chainId], NFTGame.abi, signer);
+
+            const txn = await gameContract.checkIfUserHasNFT();
+            if (txn.name) {
+                console.log("User has character NFT");
+                setCharacterNFT(transformCharacterData(txn));
+            } else {
+                console.log("No character NFT found");
+            }
+            setIsLoading(false);
+        };
+
+        if (currentAccount) {
+            console.log("CurrentAccount:", currentAccount);
+            fetchNFTMetadata();
+        }
+    }, [currentAccount]);
 
     const checkNetwork = async () => {
         try {
@@ -44,8 +72,10 @@ const App = () => {
 
     const checkIfWalletIsConnected = async () => {
         try {
-            if (!isEthereumPresent()) return false;
-
+            if (!isEthereumPresent()) {
+                setIsLoading(false);
+                return false;
+            }
             const accounts = await ethereum.request({ method: "eth_accounts" });
 
             if (accounts.length !== 0) {
@@ -60,6 +90,7 @@ const App = () => {
             console.log(error);
             return false;
         }
+        setIsLoading(false);
     };
 
     const connectWalletAction = async () => {
@@ -75,30 +106,10 @@ const App = () => {
         }
     };
 
-    useEffect(() => {
-        const fetchNFTMetadata = async () => {
-            console.log("Checking for Character NFT on address:", currentAccount);
-
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            const signer = provider.getSigner();
-            const gameContract = new ethers.Contract(NFTGameAddresses[chainId], NFTGame.abi, signer);
-
-            const txn = await gameContract.checkIfUserHasNFT();
-            if (txn.name) {
-                console.log("User has character NFT");
-                setCharacterNFT(transformCharacterData(txn));
-            } else {
-                console.log("No character NFT found");
-            }
-        };
-
-        if (currentAccount) {
-            console.log("CurrentAccount:", currentAccount);
-            fetchNFTMetadata();
-        }
-    }, [currentAccount]);
-
     const renderContent = () => {
+        if (isLoading) {
+            return <LoadingIndicator />;
+        }
         if (!currentAccount) {
             return (
                 <div className="connect-wallet-container">
@@ -110,6 +121,10 @@ const App = () => {
             );
         } else if (currentAccount && !characterNFT) {
             return <SelectCharacter setCharacterNFT={setCharacterNFT} />;
+        } else if (currentAccount && characterNFT) {
+            return (
+                <Arena characterNFT={characterNFT} currentAccount={currentAccount} setCharacterNFT={setCharacterNFT} />
+            );
         }
     };
 
