@@ -45,7 +45,7 @@ const App = () => {
 
     const checkNetwork = async () => {
         try {
-            if (window.ethereum.networkVersion !== chainId) {
+            if (window.ethereum.networkVersion && window.ethereum.networkVersion != chainId) {
                 Swal.fire({
                     title: "<strong>Incorrect <u>Network</u></strong>",
                     icon: "info",
@@ -85,12 +85,13 @@ const App = () => {
             } else {
                 console.log("No authorized account found");
             }
+            setIsLoading(false);
             return true;
         } catch (error) {
             console.log(error);
+            setIsLoading(false);
             return false;
         }
-        setIsLoading(false);
     };
 
     const connectWalletAction = async () => {
