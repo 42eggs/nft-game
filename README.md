@@ -30,11 +30,12 @@ npm install
 
 1. Replace/Add character values as you wish in `backend/charValues.json`. I've used Game of Thrones characters 😅
  
-2. Create `.env` file in `backend/` and fill it up with `PRIVATE_KEY`, `GOERLI_API_URL`, `MUMBAI_API_URL` and `POLYGON_MAINNET_API_URL`(for mainnet deployment) string values.
+2. Rename `.env-example` to `.env` in `/backend` and fill it up the required values.
    
 3. Deploy to any network by 
+4. 
    ```bash
-   npx hardhat run scripts/deploy --network{networkName}
+   npx hardhat run scripts/deploy.js --network {networkName}
    ``` 
    This will create the deployed address inside `addresses/NFTGame.json` along with the network ID like `"80001":"0x525e904dB1310ea3dD06199670256192e3520eD2"` 
    This can be later used by React.
