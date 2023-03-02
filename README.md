@@ -37,7 +37,7 @@ npm install
    ```bash
    npx hardhat run scripts/deploy.js --network {networkName}
    ``` 
-   This will create the deployed address inside `addresses/NFTGame.json` along with the network ID like `"80001":"0x525e904dB1310ea3dD06199670256192e3520eD2"` 
+   This will create the deployed address inside `addresses/NFTGame.json` along with the network ID like `"80001":"0xA154541E74523fE9b82E47501B36908E3237c52a"` 
    This can be later used by React.
 
 
