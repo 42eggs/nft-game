@@ -42,6 +42,9 @@ contract NFTGame is ERC721, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
+    //using strings
+    using Strings for *;
+
     // array holding default value for all the characters
     CharacterAttributes[] defaultCharacters;
 
@@ -64,7 +67,7 @@ contract NFTGame is ERC721, Ownable {
     // Data passed to the constructor to initialize the default characters' values
     constructor(
         string[] memory characterNames,
-        string[] memory characterImageURIs,
+        string memory characterImageURI,
         uint[] memory characterHps,
         uint[] memory characterAttackDmgs,
         string memory bossName,
@@ -94,7 +97,14 @@ contract NFTGame is ERC721, Ownable {
                 CharacterAttributes({
                     characterIndex: i,
                     name: characterNames[i],
-                    imageURI: characterImageURIs[i],
+                    imageURI: string(
+                        abi.encodePacked(
+                            characterImageURI,
+                            "/",
+                            i.toString(),
+                            ".png"
+                        )
+                    ),
                     hp: characterHps[i],
                     maxHp: characterHps[i],
                     attackDamage: characterAttackDmgs[i]

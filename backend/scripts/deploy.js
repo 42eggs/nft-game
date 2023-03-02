@@ -13,7 +13,7 @@ const main = async () => {
     const gameContractFactory = await hre.ethers.getContractFactory("NFTGame");
     const gameContract = await gameContractFactory.deploy(
         charValues.characterNames,
-        charValues.characterImageURIs,
+        charValues.characterImageURI,
         charValues.characterHps,
         charValues.characterAttackDmgs,
         charValues.bossName,

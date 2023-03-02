@@ -1,15 +1,10 @@
 {
-    "characterNames": ["Arya Stark", "Bran Stark", "Brienne of Tarth", "Bronn", "Catelyn Stark", "Cersei Lannister", "Daario Naharis", "Daenerys Targaryen", "Ellaria Sand", "Euron Greyjoy", "Gendry", "Gilly", "Grey Worm", "Jaime Lannister", "Joffrey Baratheon", "Jon Snow", "Jorah Mormont", "Melisandre", "Missandei", "Ned Stark", "Oberyn Martell", "Petyr Baelish", "Qyburn", "Ramsay Bolton", "Samwell Tarly", "Sandor Clegane", "Sansa Stark", "Stannis Baratheon", "The High Sparrow", "The Hound", "The Mountain", "Theon Greyjoy", "Tommen Baratheon", "Tormund Giantsbane", "Tyrion Lannister", "Varys", "Ygritte"],
-    "characterImageURIs": 
-    [
-    "https://i.imgur.com/pKd5Sdk.png", 
-    "https://i.imgur.com/xVu4vFL.png", 
-    "https://i.imgur.com/WMB6g9u.png"
-    ],
-    "characterHps": [3000, 2800, 1100, 1550, 2950, 1850, 3350, 3250, 2700, 2100, 1150, 1100, 4000, 1650, 500, 1200, 3550, 2250, 2000, 2050, 2550, 1700, 1450, 1500, 2450, 3300, 3600, 2950, 1400, 1400, 1900, 2850, 1200, 1900, 2650, 2000, 1300],
-    "characterAttackDmgs": [1700, 500, 500, 400, 1310, 1850, 1200, 910, 1310, 600, 800, 1100, 1640, 1220, 590, 580, 650, 860, 920, 1810, 1340, 1250, 1070, 1900, 680, 1160, 510, 470, 200, 1660, 1710, 1310, 1470, 1010, 960, 820, 1390],
+    "characterNames": ["Arya Stark", "Brienne of Tarth", "Bronn", "Cersei Lannister", "Daenerys Targaryen", "Grey Worm", "Jaime Lannister", "Joffrey Baratheon", "Jon Snow", "Jorah Mormont", "Ned Stark", "Petyr Baelish","Samwell Tarly", "Sansa Stark", "The Hound", "Theon Greyjoy", "Tyrion Lannister", "Varys"],
+    "characterImageURI": "bafybeievbdotnvuh7gjb6jknyjrdv4k27vy37kqm2kgl5etdpvpbe7krtu",
+    "characterHps": [1000, 2500, 3000, 500, 3500, 2000, 2500, 500, 4500, 1500, 2000, 500, 1000, 1500, 3000, 500, 1500, 1000],
+    "characterAttackDmgs": [80, 90, 80, 20, 50, 90, 50, 30, 120, 100, 30, 50, 60, 80, 50, 80, 60, 70],
     "bossName": "The Night King",
-    "bossImageURI": "https://i.imgur.com/bC8YKzW.jpeg",
-    "bossHp": 8000,
+    "bossImageURI": "bafybeiak7nj7kphv5a6nvrxn5pjexgknh7a5xxmykt5anbtbicucabecjq",
+    "bossHp": 5000,
     "bossAttackDamage": 100
 }
